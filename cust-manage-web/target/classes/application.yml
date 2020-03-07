@@ -1,0 +1,12 @@
+spring:
+  #数据库基本配置
+  datasource:
+    url: jdbc:mysql://march.db.com:8306/zero?characterEncoding=UTF-8&useUnicode=true&autoReconnect=true&useSSL=false
+    username: wai
+    password: wai
+logging:
+  level:
+    org.springframework.security: info
+    com.pccw: debug
+    root: info
+  file: logs/${spring.application.name}.log

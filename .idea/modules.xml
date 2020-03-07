@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/cust-manage.iml" filepath="$PROJECT_DIR$/cust-manage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cust-manage-provider/sample-provider.iml" filepath="$PROJECT_DIR$/cust-manage-provider/sample-provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cust-manage-web/sample-web.iml" filepath="$PROJECT_DIR$/cust-manage-web/sample-web.iml" />
+    </modules>
+  </component>
+</project>

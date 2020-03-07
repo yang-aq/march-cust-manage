@@ -1,0 +1,1 @@
+2020-03-08 00:03:16.285  INFO 13364 --- [AsyncResolver-bootstrap-executor-0] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
