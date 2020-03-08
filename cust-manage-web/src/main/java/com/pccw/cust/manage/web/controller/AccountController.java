@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.pccw.cust.manage.provider.entity.Account;
 import com.pccw.cust.manage.provider.feign.AccountFeign;
 import com.pccw.cust.manage.provider.service.AccountService;
+import com.pccw.cust.manage.provider.vo.*;
 import com.pccw.march.core.base.utils.CommonUtil;
 import com.pccw.march.core.base.utils.page.PageData;
 import com.pccw.march.core.base.utils.page.PageUtil;
@@ -14,7 +15,7 @@ import com.pccw.march.core.mybatis.utils.sql.mybatis.QueryCondition;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,7 +48,9 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean createOne(@RequestBody Account  account) {
+	public ResponseBean createOne(AccountControllerCreateOneIn accountInVo) {
+		//vo属性拷贝准换entity
+		Account account =CommonUtil.toDeepBean(accountInVo, Account.class);
 		accountService.createOne(account);
 		return responseUtil.success();
 	}
@@ -57,7 +60,8 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean createMany(@RequestBody List<Account> accountList) {
+	public ResponseBean createMany(List<AccountControllerCreateManyIn> accountListInVo) {
+		List<Account> accountList = CommonUtil.toBeanList(accountListInVo, Account.class);
 		accountService.createMany(accountList);
 		return responseUtil.success();
 	}
@@ -67,7 +71,7 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean removeOneByPrimaryKey(@PathVariable String id) {
+	public ResponseBean removeOneByPrimaryKey(String id) {
 		accountService.removeOneByPrimaryKey(id);
 		return responseUtil.success();
 	}
@@ -77,7 +81,7 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean removeManyByPrimaryKeys(@RequestBody List<String>  ids) {
+	public ResponseBean removeManyByPrimaryKeys(List<String>  ids) {
 		accountService.removeManyByPrimaryKeys(ids);
 		return responseUtil.success();
 	}
@@ -87,11 +91,13 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean removeByCondition( Account  account) {
+	public ResponseBean removeByCondition( AccountControllerRemoveByConditionIn accountInVo) {
+
 //		List<Account> list=accountService.queryByCondition(account);
 //		if(CollectionUtil.isEmpty(list)){
 //			return responseUtil.error("Account.AccountController.removeManyByCondition.001");
 //		}
+		Account account = CommonUtil.toDeepBean(accountInVo, Account.class);
 		accountService.removeByCondition(account);
 		return responseUtil.success();
 	}
@@ -101,7 +107,9 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean modifyOne(@RequestBody Account  account) {
+	public ResponseBean modifyOne(String id, AccountControllerModifyOneIn accountInVo) {
+		Account account = CommonUtil.toDeepBean(accountInVo, Account.class);
+		account.setId(id);
 		accountService.modifyOne(account);
 		return responseUtil.success();
 	}
@@ -111,9 +119,9 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean<Account> queryByPrimaryKey(@PathVariable String id) {
-		Account ret= accountService.queryByPrimaryKey(id);
-		return responseUtil.success(ret);
+	public ResponseBean<AccountControllerQueryByPrimaryKeyOut> queryByPrimaryKey(String id) {
+		Account account= accountService.queryByPrimaryKey(id);
+		return responseUtil.success(CommonUtil.toDeepBean(account, AccountControllerQueryByPrimaryKeyOut.class));
 	}
 	/**
 	 * 条件查询
@@ -121,10 +129,12 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean<List<Account>> queryByCondition(Account  account) {
-		CommonUtil.emptyStrToNull(account);
+	public ResponseBean<List<AccountControllerQueryByConditionOut>> queryByCondition(@SpringQueryMap AccountControllerQueryByConditionIn accountInVo) {
+		//配合前端，将“”空字符串转换为null
+		CommonUtil.emptyStrToNull(accountInVo);
+		Account account = CommonUtil.toDeepBean(accountInVo,Account.class);
 		List<Account> retList= accountService.queryByCondition(account);
-		return responseUtil.success(retList);
+		return responseUtil.success(CommonUtil.toBeanList(retList,AccountControllerQueryByConditionOut.class));
 	}
 	/**
 	 * 查询所有
@@ -132,9 +142,9 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean<List<Account>> queryAll() {
+	public ResponseBean<List<AccountControllerQueryAllOut>> queryAll() {
 		List<Account> retList= accountService.queryAll();
-		return responseUtil.success(retList);
+		return responseUtil.success(CommonUtil.toBeanList(retList, AccountControllerQueryAllOut.class));
 	}
 	/**
 	 * 分页条件查询 （pageSize为0时，代表条件查询所有，不做分页）
@@ -142,12 +152,14 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean<PageData<Account>> queryByConditionWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, Account  account) {
-		CommonUtil.emptyStrToNull(account);
+	public ResponseBean<PageData<AccountControllerQueryByConditionWithPageOut>> queryByConditionWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, AccountControllerQueryByConditionWithPageIn  accountInVo) {
+		//配合前端，将“”空字符串转换为null
+		CommonUtil.emptyStrToNull(accountInVo);
+		Account account = CommonUtil.toDeepBean(accountInVo,Account.class);
 		PageInfo<Account> pageInfo = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(() ->
 				accountService.queryByCondition(account));
 
-		return responseUtil.success(PageUtil.wrapPageData(pageInfo));
+		return responseUtil.success(PageUtil.wrapPageData(pageInfo,new AccountControllerQueryByConditionWithPageOut()));
 
 	}
 	/**
@@ -156,11 +168,11 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean<PageData<Account>> queryAllWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize) {
+	public ResponseBean<PageData<AccountControllerQueryAllWithPageOut>> queryAllWithPage(int pageNum, int pageSize) {
 		PageInfo<Account> pageInfo = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(() ->
 				accountService.queryAll());
 
-		return responseUtil.success(PageUtil.wrapPageData(pageInfo));
+		return responseUtil.success(PageUtil.wrapPageData(pageInfo,new AccountControllerQueryAllWithPageOut()));
 
 	}
 
@@ -169,9 +181,10 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean<List<Account>> advancedQuery(@RequestBody QueryCondition queryCondition) {
+	public ResponseBean<List<AccountControllerAdvancedQueryOut>> advancedQuery(QueryCondition queryCondition) {
 		List<Account> retList = accountService.advancedQuery(queryCondition);
-		return responseUtil.success(retList);
+		//entity属性拷贝转换vo
+		return responseUtil.success(CommonUtil.toBeanList(retList,AccountControllerAdvancedQueryOut.class));
 
 	}
 
@@ -218,10 +231,10 @@ public class AccountController implements AccountFeign {
 	 * @return
 	 */
 	@Override
-	public ResponseBean<PageData<Account>> advancedQueryWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, @RequestBody QueryCondition queryCondition) {
+	public ResponseBean<PageData<AccountControllerAdvancedQueryWithPageOut>> advancedQueryWithPage(int pageNum, int pageSize, QueryCondition queryCondition) {
 		PageInfo<Account> pageInfo = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(() ->
 				accountService.advancedQuery(queryCondition));
-		return responseUtil.success(PageUtil.wrapPageData(pageInfo));
+		return responseUtil.success(PageUtil.wrapPageData(pageInfo,new AccountControllerAdvancedQueryWithPageOut()));
 
 	}
 }

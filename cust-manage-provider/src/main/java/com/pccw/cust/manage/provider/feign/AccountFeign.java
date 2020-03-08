@@ -1,12 +1,13 @@
 package com.pccw.cust.manage.provider.feign;
 
-import com.pccw.cust.manage.provider.entity.Account;
 import com.pccw.cust.manage.provider.constant.CustManageProviderConstant;
+import com.pccw.cust.manage.provider.vo.*;
 import com.pccw.march.core.base.utils.page.PageData;
 import com.pccw.march.core.base.utils.response.ResponseBean;
 import com.pccw.march.core.mybatis.utils.sql.mybatis.QueryCondition;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public interface AccountFeign {
 	 */
 	@PostMapping
 	@ApiOperation("新增一条")
-	ResponseBean createOne(@RequestBody Account  account);
+	ResponseBean createOne(@RequestBody AccountControllerCreateOneIn account);
 	/**
 	 * 批量新增（通过实体列表）
 	 * @param accountList
@@ -41,7 +42,7 @@ public interface AccountFeign {
 	 */
 	@PostMapping("/many")
 	@ApiOperation("批量新增（通过实体列表）")
-	ResponseBean createMany(@RequestBody List<Account> accountList);
+	ResponseBean createMany(@RequestBody List<AccountControllerCreateManyIn> accountList);
 	/**
 	 * 删除一条
 	 * @param id
@@ -49,7 +50,7 @@ public interface AccountFeign {
 	 */
 	@DeleteMapping("/{id}")
 	@ApiOperation("删除一条")
-	ResponseBean removeOneByPrimaryKey(@PathVariable String id);
+	ResponseBean removeOneByPrimaryKey(@PathVariable("id") String id);
 	/**
 	 * 批量删除（通过主键id列表）
 	 * @param ids
@@ -65,15 +66,15 @@ public interface AccountFeign {
 	 */
 	@DeleteMapping("/condition")
 	@ApiOperation("根据条件删除")
-	ResponseBean removeByCondition( Account  account);
+	ResponseBean removeByCondition(@SpringQueryMap AccountControllerRemoveByConditionIn account);
 	/**
 	 * 修改一条
 	 * @param account
 	 * @return
 	 */
-	@PutMapping
+	@PutMapping("/{id}")
 	@ApiOperation("修改一条")
-	ResponseBean modifyOne(@RequestBody Account  account);
+	ResponseBean modifyOne(@PathVariable("id") String id, @RequestBody AccountControllerModifyOneIn account);
 	/**
 	 * 根据主键查询
 	 * @param id
@@ -81,7 +82,7 @@ public interface AccountFeign {
 	 */
 	@GetMapping("/{id}")
 	@ApiOperation("根据主键查询")
-	ResponseBean<Account> queryByPrimaryKey(@PathVariable String id);
+	ResponseBean<AccountControllerQueryByPrimaryKeyOut> queryByPrimaryKey(@PathVariable("id") String id);
 	/**
 	 * 条件查询
 	 * @param account
@@ -89,7 +90,7 @@ public interface AccountFeign {
 	 */
 	@GetMapping("/condition")
 	@ApiOperation("条件查询")
-	ResponseBean<List<Account>> queryByCondition(Account  account);
+	ResponseBean<List<AccountControllerQueryByConditionOut>> queryByCondition(@SpringQueryMap AccountControllerQueryByConditionIn  account);
 	/**
 	 * 查询所有
 	 * @param
@@ -97,7 +98,7 @@ public interface AccountFeign {
 	 */
 	@GetMapping
 	@ApiOperation("查询所有")
-	ResponseBean<List<Account>> queryAll();
+	ResponseBean<List<AccountControllerQueryAllOut>> queryAll();
 	/**
 	 * 分页条件查询 （pageSize为0时，代表条件查询所有，不做分页）
 	 * @param
@@ -105,7 +106,7 @@ public interface AccountFeign {
 	 */
 	@GetMapping("/condition/page")
 	@ApiOperation("分页条件查询")
-	ResponseBean<PageData<Account>> queryByConditionWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, Account  account);
+	ResponseBean<PageData<AccountControllerQueryByConditionWithPageOut>> queryByConditionWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, @SpringQueryMap AccountControllerQueryByConditionWithPageIn  account);
 	/**
 	 * 分页查询所有 （pageSize为0时，代表查询所有，不做分页）
 	 * @param
@@ -113,12 +114,13 @@ public interface AccountFeign {
 	 */
 	@GetMapping("/page")
 	@ApiOperation("分页查询所有")
-	ResponseBean<PageData<Account>> queryAllWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize);
+	ResponseBean<PageData<AccountControllerQueryAllWithPageOut>> queryAllWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize);
 
 	/**
 	 * 高级查询（模糊查询、字段排序等高级功能)
 	 * @return
 	 */
+
 	@ApiOperation(value = "高级查询（模糊查询、字段排序等高级功能)",
 	notes = "传参说明：\n" +
 			"{\n" +
@@ -159,7 +161,7 @@ public interface AccountFeign {
 			"　　　}")
 
 	@PostMapping("/advancedQuery")
-	ResponseBean<List<Account>> advancedQuery(@RequestBody QueryCondition queryCondition);
+	ResponseBean<List<AccountControllerAdvancedQueryOut>> advancedQuery(@RequestBody QueryCondition queryCondition);
 
 	/**
 	 * 高级分页查询（模糊查询、字段排序等高级功能)
@@ -205,7 +207,7 @@ public interface AccountFeign {
 	 */
 	@ApiOperation("高级分页查询（模糊查询、字段排序等高级功能)，使用参考高级查询")
 	@PostMapping("/advancedQuery/page")
-	ResponseBean<PageData<Account>> advancedQueryWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize,@RequestBody QueryCondition queryCondition);
+	ResponseBean<PageData<AccountControllerAdvancedQueryWithPageOut>> advancedQueryWithPage(@RequestParam("pageNum") int pageNum, @RequestParam("pageSize") int pageSize, @RequestBody QueryCondition queryCondition);
 
 
 
